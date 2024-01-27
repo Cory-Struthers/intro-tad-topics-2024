@@ -150,7 +150,7 @@ For LDA topic modeling, we want to select the $k$ at which point the value of th
 
 Perplexity is a similar cross-validation approach: It reveals how well an LDA model performs on new data it has not encountered before. Low perplexity scores indicate that the model can explain unseen data well. 
 
-Cross-validation involving splitting the data into different groups, or "folds" (usually 5), training the model on 3/4 of the data and test the resulting model on 1/4 of the data that has been held out.
+Cross-validation involving splitting the data into different groups, or "folds" (usually 5), training the model on 4/5 of the data and test the resulting model on 1/5 of the data that has been held out.
 
 To compare, we'll evaluate perplexity on the same values of $k$ we assigned when we applied metrics in the `ldatuning` package. 
 
@@ -160,18 +160,18 @@ To compare, we'll evaluate perplexity on the same values of $k$ we assigned when
 k_topics_eval =  c(10,20,30,40,50,60,70,80,90,100,110,120,130,140)
 
 # Create folding sets
-folding_sets = rep(1:5, each = 26) # 130 bills / 5 sets
+folding_sets = rep(1:5, each = 26) # 130 bills / 5 sets (or folds)
 
 # Function that estimates perplexity across k and folding sets
 getPerplexity = function(k, fold) {
   
-    testing.dtm = which(folding_sets == fold) # 1/5 fold
-    training.dtm = which(folding_sets != fold) # rest of the data
+    testing.dtm = which(folding_sets == fold) # 1/5 fold to hold out for testing
+    training.dtm = which(folding_sets != fold) # rest (4/5) of the data used to train the model (not the fold)
     
-    training.model = LDA(bills_dfm[training.dtm, ], k = k) 
-    test.model = LDA(bills_dfm[testing.dtm, ], model = training.model, control = list(estimate.beta = FALSE))
+    training.model = LDA(bills_dfm[training.dtm, ], k = k) # train LDA model using 4/5 of data
+    test.model = LDA(bills_dfm[testing.dtm, ], model = training.model, control = list(estimate.beta = FALSE)) # test on 1/5
     
-    perplexity(test.model)
+    perplexity(test.model) # calculate perplexity on the test model (1/5)
 }
 
 # Create results object
@@ -233,7 +233,7 @@ ggplot(perplexity_results) +
 ```
 
 
-At first glance, folds appear to have varying trends. In particular, 2 and 5 have a much steeper downward pattern than the others. In folds 1, 3, and 4, leveling off may occur closer to 50 topics.
+At first glance, LDA models based on different folds appear to have varying trends. In particular, 2 and 5 have a much steeper downward pattern than the others. In folds 1, 3, and 4, leveling off may occur closer to 50 topics.
 
 Evaluating whether 30-50 topics best represent the topical distribution across our text requires human judgement. "Best practices" on topic models are loosely assembled, but we would implement something like the following in our own work (based on Grimmer et al., 2021 among others): 
 
