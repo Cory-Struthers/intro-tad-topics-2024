@@ -166,12 +166,12 @@ folding_sets = rep(1:5, each = 26) # 130 bills / 5 sets (or folds)
 getPerplexity = function(k, fold) {
   
     testing.dtm = which(folding_sets == fold) # 1/5 fold to hold out for testing
-    training.dtm = which(folding_sets != fold) # rest (4/5) of the data used to train the model (not the fold)
+    training.dtm = which(folding_sets != fold) # rest (4/5 folds) of the data used to train the model 
     
     training.model = LDA(bills_dfm[training.dtm, ], k = k) # train LDA model using 4/5 of data
-    test.model = LDA(bills_dfm[testing.dtm, ], model = training.model, control = list(estimate.beta = FALSE)) # test on 1/5
+    test.model = LDA(bills_dfm[testing.dtm, ], model = training.model, control = list(estimate.beta = FALSE))
     
-    perplexity(test.model) # calculate perplexity on the test model (1/5)
+    perplexity(test.model) # calculate perplexity on the test model (1/5 of the data)
 }
 
 # Create results object
