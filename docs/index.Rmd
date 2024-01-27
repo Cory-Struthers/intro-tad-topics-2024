@@ -78,10 +78,7 @@ head(bills_toks_coll, 20)
 
 # Add tokens objects together and create dfm
 bills_dfm =  tokens_compound(bills_toks, bills_toks_coll, concatenator = " ") %>%
-    tokens_select(padding=FALSE) %>% 
     tokens_wordstem  %>% 
-    tokens_remove(stopwords("en")) %>%
-    tokens_wordstem() %>%
     dfm() %>%
     dfm_trim(min_termfreq = 4, min_docfreq = 5) 
 bills_dfm
